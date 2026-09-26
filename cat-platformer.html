@@ -365,7 +365,8 @@
     startStopBtn.textContent = running ? 'Stop' : 'Start';
   });
 
-  window.addEventListener('keydown', e=>{ keys[e.key]=true; if(e.key===' ') e.preventDefault(); });
+  const blockScrollKeys = ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '];
+  window.addEventListener('keydown', e=>{ keys[e.key]=true; if(blockScrollKeys.includes(e.key)) e.preventDefault(); });
   window.addEventListener('keyup', e=>{ keys[e.key]=false; });
 
   function bindHold(id, key){
