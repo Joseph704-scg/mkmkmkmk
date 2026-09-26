@@ -114,7 +114,8 @@
 
   function loop(){ if(running) update(); draw(); requestAnimationFrame(loop); }
 
-  window.addEventListener('keydown', e=>keys[e.key]=true);
+  const blockScrollKeys = ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '];
+  window.addEventListener('keydown', e=>{ keys[e.key]=true; if(blockScrollKeys.includes(e.key)) e.preventDefault(); });
   window.addEventListener('keyup', e=>keys[e.key]=false);
   function pointerX(clientX){
     const rect = canvas.getBoundingClientRect();
