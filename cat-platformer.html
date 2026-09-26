@@ -5,70 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Whisker Hop</title>
 <style>
-  :root{
-    --bg1:#bfe6ff; --bg2:#e8f7ff; --ground:#7a5230; --grass:#5fbf5f;
-    --panel:#ffffffcc; --ink:#25324a; --accent:#ff8a5b;
-  }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --bg1:#0e1630; --bg2:#1b2547; --ground:#4a3220; --grass:#2f6b3a;
-      --panel:#1c2540dd; --ink:#eef2ff; --accent:#ff9a6b;
-    }
-  }
-  :root[data-theme="dark"]{
-    --bg1:#0e1630; --bg2:#1b2547; --ground:#4a3220; --grass:#2f6b3a;
-    --panel:#1c2540dd; --ink:#eef2ff; --accent:#ff9a6b;
-  }
-  *{box-sizing:border-box;}
-  html,body{height:100%;margin:0;}
-  body{
-    background:linear-gradient(var(--bg1),var(--bg2));
-    color:var(--ink);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-    display:flex;flex-direction:column;align-items:center;
-    padding-top:env(safe-area-inset-top,0px);
-    padding-bottom:env(safe-area-inset-bottom,0px);
-    min-height:100%;
-  }
-  h1{margin:14px 0 6px;font-size:1.4rem;letter-spacing:.5px;}
-  #hud{
-    display:flex;gap:18px;align-items:center;margin-bottom:8px;
-    background:var(--panel);padding:8px 16px;border-radius:12px;
-    font-weight:600;font-size:.95rem;backdrop-filter:blur(4px);
-  }
-  #wrap{
-    position:relative;width:100%;max-width:800px;padding:0 8px;
-  }
-  canvas{
-    display:block;width:100%;height:auto;background:transparent;
-    border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.25);
-    touch-action:none;
-  }
-  #msg{
-    position:absolute;inset:0;display:none;
-    align-items:center;justify-content:center;flex-direction:column;
-    background:rgba(0,0,0,.45);border-radius:14px;color:#fff;text-align:center;
-    padding:20px;
-  }
-  #msg button{
-    margin-top:14px;padding:10px 22px;font-size:1rem;font-weight:700;
-    border:none;border-radius:10px;background:var(--accent);color:#2a1a10;cursor:pointer;
-  }
-  #msg h2{margin:0 0 4px;font-size:1.5rem;}
-  #hud button{
-    padding:6px 14px;border:none;border-radius:8px;background:var(--accent);
-    color:#2a1a10;font-weight:700;cursor:pointer;font-size:.9rem;
-  }
-  #controls{
-    margin:10px 0 4px;font-size:.85rem;opacity:.8;text-align:center;max-width:640px;padding:0 12px;
-  }
-  #touchpad{
-    display:flex;gap:10px;margin-top:6px;user-select:none;
-  }
-  #touchpad button{
-    width:64px;height:52px;border-radius:12px;border:none;
-    background:var(--panel);color:var(--ink);font-size:1.3rem;font-weight:700;
-  }
+  :root{--bg1:#bfe6ff;--bg2:#e8f7ff;--ground:#7a5230;--grass:#5fbf5f;--panel:#ffffffcc;--ink:#25324a;--accent:#ff8a5b;}
+  *{box-sizing:border-box;} html,body{height:100%;margin:0;}
+  body{background:linear-gradient(var(--bg1),var(--bg2));color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column;align-items:center;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);min-height:100%;}
+  h1{margin:14px 0 6px;font-size:1.4rem;}
+  #hud{display:flex;gap:18px;align-items:center;margin-bottom:8px;background:var(--panel);padding:8px 16px;border-radius:12px;font-weight:600;}
+  #hud button{padding:6px 14px;border:none;border-radius:8px;background:var(--accent);color:#2a1a10;font-weight:700;cursor:pointer;}
+  #wrap{position:relative;width:100%;max-width:800px;padding:0 8px;}
+  canvas{display:block;width:100%;height:auto;border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.25);touch-action:none;}
+  #msg{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;background:rgba(0,0,0,.45);border-radius:14px;color:#fff;text-align:center;padding:20px;}
+  #msg button{margin-top:14px;padding:10px 22px;font-size:1rem;font-weight:700;border:none;border-radius:10px;background:var(--accent);color:#2a1a10;cursor:pointer;}
+  #controls{margin:10px 0 4px;font-size:.85rem;opacity:.8;text-align:center;max-width:640px;padding:0 12px;}
+  #touchpad{display:flex;gap:10px;margin-top:6px;}
+  #touchpad button{width:64px;height:52px;border-radius:12px;border:none;background:var(--panel);color:var(--ink);font-size:1.3rem;font-weight:700;}
 </style>
 </head>
 <body>
@@ -87,13 +36,12 @@
     <button id="msgBtn">Continue</button>
   </div>
 </div>
-<div id="controls">Arrow keys / A,D to move · Space or ↑ to jump · Collect fish, reach the flag, avoid the spikes.</div>
+<div id="controls">A/D to move · W or Space to jump · Collect fish, reach the flag, avoid spikes.</div>
 <div id="touchpad">
   <button id="tLeft">◀</button>
   <button id="tJump">⤒</button>
   <button id="tRight">▶</button>
 </div>
-
 <script>
 (function(){
   const canvas = document.getElementById('game');
@@ -101,48 +49,16 @@
   const W = canvas.width, H = canvas.height;
   const GRAV = 0.6, MOVE = 3.6, FRICTION = 0.82, JUMP = -12.5;
 
-  // ---------- Level data ----------
-  // platforms: [x,y,w,h]; spikes: [x,y,w,h]; coins: [x,y]; goal: [x,y]
   const levels = [
-    { // Level 1 - intro
-      start:[40,320],
-      platforms:[[0,400,800,50],[220,330,140,20],[420,270,120,20],[620,340,140,20]],
-      spikes:[],
-      coins:[[270,290],[460,230],[660,300]],
-      goal:[730,290]
-    },
-    { // Level 2 - gaps + one spike
-      start:[40,320],
-      platforms:[[0,400,180,50],[260,400,140,50],[470,400,120,50],[660,400,140,50],[300,300,90,16],[500,250,90,16]],
-      spikes:[[180,384,80,16]],
-      coins:[[330,270],[530,220],[700,370]],
-      goal:[730,370]
-    },
-    { // Level 3 - stairs
-      start:[30,320],
-      platforms:[[0,400,140,50],[160,360,90,16],[280,320,90,16],[400,280,90,16],[520,240,90,16],[640,200,140,50]],
-      spikes:[[140,384,20,16],[250,384,20,16],[370,384,20,16],[490,384,20,16],[610,384,20,16]],
-      coins:[[195,330],[315,290],[435,250],[555,210]],
-      goal:[700,150]
-    },
-    { // Level 4 - narrow hops over pit
-      start:[30,320],
-      platforms:[[0,400,110,50],[150,400,70,16],[260,370,70,16],[370,340,70,16],[480,310,70,16],[590,280,70,16],[700,400,100,50]],
-      spikes:[[110,384,40,16],[220,384,40,16],[330,384,40,16],[440,384,40,16],[550,384,40,16],[660,384,40,16]],
-      coins:[[175,370],[285,340],[395,310],[505,280],[615,250]],
-      goal:[750,350]
-    },
-    { // Level 5 - final gauntlet
-      start:[30,320],
-      platforms:[[0,400,130,50],[190,380,80,16],[330,340,60,16],[430,290,60,16],[330,240,60,16],[190,200,80,16],[330,160,300,16],[700,80,100,50]],
-      spikes:[[130,384,60,16],[500,274,60,16],[270,344,60,16],[270,184,60,16]],
-      coins:[[210,350],[350,310],[450,260],[350,210],[210,170],[600,130]],
-      goal:[750,30]
-    }
+    { start:[40,320], platforms:[[0,400,800,50],[220,330,140,20],[420,270,120,20],[620,340,140,20]], spikes:[], coins:[[270,290],[460,230],[660,300]], goal:[730,290] },
+    { start:[40,320], platforms:[[0,400,180,50],[260,400,140,50],[470,400,120,50],[660,400,140,50],[300,300,90,16],[500,250,90,16]], spikes:[[180,384,80,16]], coins:[[330,270],[530,220],[700,370]], goal:[730,370] },
+    { start:[30,320], platforms:[[0,400,140,50],[160,360,90,16],[280,320,90,16],[400,280,90,16],[520,240,90,16],[640,200,140,50]], spikes:[[140,384,20,16],[250,384,20,16],[370,384,20,16],[490,384,20,16],[610,384,20,16]], coins:[[195,330],[315,290],[435,250],[555,210]], goal:[700,150] },
+    { start:[30,320], platforms:[[0,400,110,50],[150,400,70,16],[260,370,70,16],[370,340,70,16],[480,310,70,16],[590,280,70,16],[700,400,100,50]], spikes:[[110,384,40,16],[220,384,40,16],[330,384,40,16],[440,384,40,16],[550,384,40,16],[660,384,40,16]], coins:[[175,370],[285,340],[395,310],[505,280],[615,250]], goal:[750,350] },
+    { start:[30,320], platforms:[[0,400,130,50],[190,380,80,16],[330,340,60,16],[430,290,60,16],[330,240,60,16],[190,200,80,16],[330,160,300,16],[700,80,100,50]], spikes:[[130,384,60,16],[500,274,60,16],[270,344,60,16],[270,184,60,16]], coins:[[210,350],[350,310],[450,260],[350,210],[210,170],[600,130]], goal:[750,30] }
   ];
 
-  let levelIndex = 0, coinCount = 0, lives = 3, keys = {}, gameOver=false, running=false;
-  let player, plats, spks, coins, goal, camX = 0;
+  let levelIndex=0, coinCount=0, lives=3, keys={}, gameOver=false, running=false;
+  let player, plats, spks, coins, goal, camX=0;
 
   function loadLevel(i){
     const L = levels[i];
@@ -156,232 +72,137 @@
     document.getElementById('coinTotal').textContent = coins.length;
     document.getElementById('coinCount').textContent = 0;
   }
-
-  function rectsOverlap(a,b){
-    return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y;
-  }
-
-  function resetPlayerToStart(){
-    const L = levels[levelIndex];
-    player.x = L.start[0]; player.y = L.start[1]; player.vx=0; player.vy=0;
-  }
-
+  function rectsOverlap(a,b){ return a.x<b.x+b.w && a.x+a.w>b.x && a.y<b.y+b.h && a.y+a.h>b.y; }
+  function resetPlayerToStart(){ const L=levels[levelIndex]; player.x=L.start[0]; player.y=L.start[1]; player.vx=0; player.vy=0; }
   function loseLife(){
-    lives--;
-    document.getElementById('lives').textContent = lives;
+    lives--; document.getElementById('lives').textContent = lives;
     if(lives<=0){
       showMsg('Game Over', "You ran out of lives. Let's try again from Level 1!", ()=>{
-        lives=3; document.getElementById('lives').textContent=lives;
-        levelIndex=0; loadLevel(0);
+        lives=3; document.getElementById('lives').textContent=lives; levelIndex=0; loadLevel(0);
       });
-    } else {
-      resetPlayerToStart();
-    }
+    } else resetPlayerToStart();
   }
-
   function showMsg(title, sub, onContinue){
     gameOver = true;
     document.getElementById('msgTitle').textContent = title;
     document.getElementById('msgSub').textContent = sub;
-    const m = document.getElementById('msg');
-    m.style.display='flex';
+    const m = document.getElementById('msg'); m.style.display='flex';
     const btn = document.getElementById('msgBtn');
     btn.textContent = (levelIndex >= levels.length-1 && title==='You Win!') ? 'Play Again' : 'Continue';
     btn.onclick = ()=>{ m.style.display='none'; gameOver=false; onContinue(); };
   }
-
   function update(){
     if(gameOver) return;
-    // input
-    if(keys['ArrowLeft']||keys['a']) { player.vx -= MOVE*0.35; player.facing=-1; }
-    if(keys['ArrowRight']||keys['d']) { player.vx += MOVE*0.35; player.facing=1; }
+    if(keys['a']) { player.vx -= MOVE*0.35; player.facing=-1; }
+    if(keys['d']) { player.vx += MOVE*0.35; player.facing=1; }
     player.vx *= FRICTION;
     if(Math.abs(player.vx) > MOVE) player.vx = MOVE*Math.sign(player.vx);
-    if((keys['ArrowUp']||keys['w']||keys[' ']) && player.onGround){
-      player.vy = JUMP; player.onGround=false;
-    }
-    player.vy += GRAV;
-    if(player.vy > 16) player.vy = 16;
-
-    player.x += player.vx;
-    player.y += player.vy;
-    player.onGround = false;
-
+    if((keys['w']||keys[' ']) && player.onGround){ player.vy = JUMP; player.onGround=false; }
+    player.vy += GRAV; if(player.vy>16) player.vy=16;
+    player.x += player.vx; player.y += player.vy; player.onGround=false;
     for(const p of plats){
       if(rectsOverlap(player,p)){
-        // resolve simple AABB - find smallest overlap axis
         const overlapX = Math.min(player.x+player.w-p.x, p.x+p.w-player.x);
         const overlapY = Math.min(player.y+player.h-p.y, p.y+p.h-player.y);
         if(overlapY < overlapX){
-          if(player.vy > 0){ player.y = p.y - player.h; player.vy=0; player.onGround=true; }
-          else { player.y = p.y+p.h; player.vy=0; }
+          if(player.vy>0){ player.y=p.y-player.h; player.vy=0; player.onGround=true; }
+          else { player.y=p.y+p.h; player.vy=0; }
         } else {
-          if(player.vx>0){ player.x = p.x - player.w; }
-          else if(player.vx<0){ player.x = p.x+p.w; }
-          player.vx = 0;
+          if(player.vx>0){ player.x=p.x-player.w; } else if(player.vx<0){ player.x=p.x+p.w; }
+          player.vx=0;
         }
       }
     }
-
-    if(player.x < 0) player.x = 0;
-    if(player.x+player.w > 5000) player.x = 5000-player.w;
-
-    // fell off
-    if(player.y > H + 60){ loseLife(); return; }
-    // spikes
+    if(player.x<0) player.x=0;
+    if(player.y > H+60){ loseLife(); return; }
     for(const s of spks){ if(rectsOverlap(player,s)){ loseLife(); return; } }
-    // coins
     for(const c of coins){
       if(!c.got){
-        const dx = (player.x+player.w/2)-c.x, dy=(player.y+player.h/2)-c.y;
+        const dx=(player.x+player.w/2)-c.x, dy=(player.y+player.h/2)-c.y;
         if(Math.sqrt(dx*dx+dy*dy) < c.r+16){ c.got=true; coinCount++; document.getElementById('coinCount').textContent=coinCount; }
       }
     }
-    // goal
     if(rectsOverlap(player,goal)){
       if(levelIndex < levels.length-1){
-        showMsg('Level Complete!', `You collected ${coinCount}/${coins.length} fish.`, ()=>{
-          levelIndex++; loadLevel(levelIndex);
-        });
+        showMsg('Level Complete!', `You collected ${coinCount}/${coins.length} fish.`, ()=>{ levelIndex++; loadLevel(levelIndex); });
       } else {
         showMsg('You Win!', `All 5 levels done! Final fish: ${coinCount}/${coins.length}.`, ()=>{
           levelIndex=0; lives=3; document.getElementById('lives').textContent=lives; loadLevel(0);
         });
       }
     }
-
-    // camera follows player, clamp to level width guess
     camX = Math.max(0, Math.min(player.x - W/2, 900 - W));
   }
-
   function drawCat(x,y,w,h,facing){
-    ctx.save();
-    ctx.translate(x+w/2, y+h/2);
-    ctx.scale(facing,1);
-    ctx.translate(-w/2,-h/2);
-    // tail
-    ctx.strokeStyle = '#e8873a'; ctx.lineWidth=5; ctx.lineCap='round';
+    ctx.save(); ctx.translate(x+w/2,y+h/2); ctx.scale(facing,1); ctx.translate(-w/2,-h/2);
+    ctx.strokeStyle='#e8873a'; ctx.lineWidth=5; ctx.lineCap='round';
     ctx.beginPath(); ctx.moveTo(-2,h*0.5); ctx.quadraticCurveTo(-14,h*0.2,-6,-2); ctx.stroke();
-    // body
-    ctx.fillStyle = '#f2a54a';
+    ctx.fillStyle='#f2a54a';
     ctx.beginPath(); ctx.ellipse(w/2,h*0.6,w/2,h*0.42,0,0,Math.PI*2); ctx.fill();
-    // head
     ctx.beginPath(); ctx.ellipse(w*0.68,h*0.28,w*0.4,h*0.34,0,0,Math.PI*2); ctx.fill();
-    // ears
-    ctx.beginPath();
-    ctx.moveTo(w*0.5,h*0.06); ctx.lineTo(w*0.58,-h*0.18); ctx.lineTo(w*0.72,h*0.08); ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(w*0.86,h*0.06); ctx.lineTo(w*0.98,-h*0.16); ctx.lineTo(w*1.02,h*0.14); ctx.fill();
-    // face
+    ctx.beginPath(); ctx.moveTo(w*0.5,h*0.06); ctx.lineTo(w*0.58,-h*0.18); ctx.lineTo(w*0.72,h*0.08); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(w*0.86,h*0.06); ctx.lineTo(w*0.98,-h*0.16); ctx.lineTo(w*1.02,h*0.14); ctx.fill();
     ctx.fillStyle='#25324a';
     ctx.beginPath(); ctx.arc(w*0.6,h*0.28,2.2,0,Math.PI*2); ctx.fill();
     ctx.beginPath(); ctx.arc(w*0.82,h*0.26,2.2,0,Math.PI*2); ctx.fill();
     ctx.strokeStyle='#25324a'; ctx.lineWidth=1.2;
     ctx.beginPath(); ctx.moveTo(w*0.72,h*0.38); ctx.lineTo(w*0.72,h*0.44); ctx.stroke();
-    // whiskers
-    ctx.beginPath();
-    ctx.moveTo(w*0.9,h*0.36); ctx.lineTo(w*1.15,h*0.30); ctx.moveTo(w*0.9,h*0.42); ctx.lineTo(w*1.15,h*0.42);
-    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(w*0.9,h*0.36); ctx.lineTo(w*1.15,h*0.30); ctx.moveTo(w*0.9,h*0.42); ctx.lineTo(w*1.15,h*0.42); ctx.stroke();
     ctx.restore();
   }
-
   function draw(){
-    ctx.clearRect(0,0,W,H);
-    ctx.save();
-    ctx.translate(-camX,0);
-
-    // sky decorations
+    ctx.clearRect(0,0,W,H); ctx.save(); ctx.translate(-camX,0);
     ctx.fillStyle='rgba(255,255,255,.55)';
     for(let i=0;i<6;i++){
-      const bx = (i*260 - (camX*0.3)%260);
-      ctx.beginPath();
-      ctx.ellipse(bx+60,60,34,16,0,0,Math.PI*2);
-      ctx.ellipse(bx+90,55,26,14,0,0,Math.PI*2);
-      ctx.fill();
+      const bx=(i*260-(camX*0.3)%260);
+      ctx.beginPath(); ctx.ellipse(bx+60,60,34,16,0,0,Math.PI*2); ctx.ellipse(bx+90,55,26,14,0,0,Math.PI*2); ctx.fill();
     }
-
-    // platforms
     for(const p of plats){
       ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--ground');
       ctx.fillRect(p.x,p.y,p.w,p.h);
       ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--grass');
       ctx.fillRect(p.x,p.y,p.w,6);
     }
-    // spikes
-    ctx.fillStyle = '#c93b3b';
+    ctx.fillStyle='#c93b3b';
     for(const s of spks){
-      const n = Math.max(1, Math.round(s.w/16));
-      const sw = s.w/n;
+      const n=Math.max(1,Math.round(s.w/16)); const sw=s.w/n;
       for(let i=0;i<n;i++){
-        ctx.beginPath();
-        ctx.moveTo(s.x+i*sw, s.y+s.h);
-        ctx.lineTo(s.x+i*sw+sw/2, s.y);
-        ctx.lineTo(s.x+i*sw+sw, s.y+s.h);
-        ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(s.x+i*sw,s.y+s.h); ctx.lineTo(s.x+i*sw+sw/2,s.y); ctx.lineTo(s.x+i*sw+sw,s.y+s.h); ctx.closePath(); ctx.fill();
       }
     }
-    // coins
     for(const c of coins){
       if(c.got) continue;
-      ctx.fillStyle='#ffd23f';
-      ctx.beginPath(); ctx.arc(c.x,c.y,c.r,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#ffd23f'; ctx.beginPath(); ctx.arc(c.x,c.y,c.r,0,Math.PI*2); ctx.fill();
       ctx.strokeStyle='#a97a00'; ctx.lineWidth=1.5; ctx.stroke();
-      ctx.fillStyle='#a97a00'; ctx.font='10px sans-serif'; ctx.textAlign='center';
-      ctx.fillText('🐟'.length?'':'', c.x, c.y); // no-op safe
     }
-    // goal flag
-    ctx.fillStyle='#5a4a3a';
-    ctx.fillRect(goal.x, goal.y, 4, goal.h);
+    ctx.fillStyle='#5a4a3a'; ctx.fillRect(goal.x,goal.y,4,goal.h);
     ctx.fillStyle='#4fd6c0';
-    ctx.beginPath();
-    ctx.moveTo(goal.x+4, goal.y);
-    ctx.lineTo(goal.x+26, goal.y+8);
-    ctx.lineTo(goal.x+4, goal.y+16);
-    ctx.closePath(); ctx.fill();
-
-    // cat
-    drawCat(player.x, player.y, player.w, player.h, player.facing);
-
+    ctx.beginPath(); ctx.moveTo(goal.x+4,goal.y); ctx.lineTo(goal.x+26,goal.y+8); ctx.lineTo(goal.x+4,goal.y+16); ctx.closePath(); ctx.fill();
+    drawCat(player.x,player.y,player.w,player.h,player.facing);
     ctx.restore();
   }
-
   function loop(){
     if(running) update();
     draw();
     if(!running && !gameOver){
-      ctx.save();
-      ctx.fillStyle='rgba(0,0,0,.35)';
-      ctx.fillRect(0,0,W,H);
+      ctx.save(); ctx.fillStyle='rgba(0,0,0,.35)'; ctx.fillRect(0,0,W,H);
       ctx.fillStyle='#fff'; ctx.font='bold 28px sans-serif'; ctx.textAlign='center';
-      ctx.fillText('Paused — press Start', W/2, H/2);
-      ctx.restore();
+      ctx.fillText('Paused — press Start', W/2, H/2); ctx.restore();
     }
     requestAnimationFrame(loop);
   }
-
   const startStopBtn = document.getElementById('startStop');
-  startStopBtn.addEventListener('click', ()=>{
-    running = !running;
-    startStopBtn.textContent = running ? 'Stop' : 'Start';
-  });
-
-  const blockScrollKeys = ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '];
-  window.addEventListener('keydown', e=>{ keys[e.key]=true; if(blockScrollKeys.includes(e.key)) e.preventDefault(); });
+  startStopBtn.addEventListener('click', ()=>{ running=!running; startStopBtn.textContent = running?'Stop':'Start'; });
+  window.addEventListener('keydown', e=>{ keys[e.key]=true; if(e.key===' ') e.preventDefault(); });
   window.addEventListener('keyup', e=>{ keys[e.key]=false; });
-
-  function bindHold(id, key){
-    const el = document.getElementById(id);
-    const on = e=>{ e.preventDefault(); keys[key]=true; };
-    const off = e=>{ e.preventDefault(); keys[key]=false; };
-    el.addEventListener('touchstart', on); el.addEventListener('touchend', off);
-    el.addEventListener('mousedown', on); el.addEventListener('mouseup', off); el.addEventListener('mouseleave', off);
+  function bindHold(id,key){
+    const el=document.getElementById(id);
+    const on=e=>{e.preventDefault();keys[key]=true;}, off=e=>{e.preventDefault();keys[key]=false;};
+    el.addEventListener('touchstart',on); el.addEventListener('touchend',off);
+    el.addEventListener('mousedown',on); el.addEventListener('mouseup',off); el.addEventListener('mouseleave',off);
   }
-  bindHold('tLeft','ArrowLeft');
-  bindHold('tRight','ArrowRight');
-  bindHold('tJump','ArrowUp');
-
-  loadLevel(0);
-  loop();
+  bindHold('tLeft','a'); bindHold('tRight','d'); bindHold('tJump','w');
+  loadLevel(0); loop();
 })();
 </script>
 </body>
