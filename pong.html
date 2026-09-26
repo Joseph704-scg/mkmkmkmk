@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pong</title>
+<style>
+  :root{--bg1:#0f1a24;--bg2:#050a10;--ink:#eaf6ff;--accent:#5bd1ff;--panel:#0f2230ee;}
+  *{box-sizing:border-box;}
+  html,body{height:100%;margin:0;}
+  body{background:linear-gradient(var(--bg1),var(--bg2));color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    display:flex;flex-direction:column;align-items:center;
+    padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);min-height:100%;}
+  h1{margin:14px 0 6px;font-size:1.4rem;}
+  #hud{display:flex;gap:16px;align-items:center;margin-bottom:8px;background:var(--panel);
+    padding:8px 16px;border-radius:12px;font-weight:600;}
+  #hud button{padding:6px 14px;border:none;border-radius:8px;background:var(--accent);color:#062733;font-weight:700;cursor:pointer;}
+  canvas{width:100%;max-width:560px;height:auto;aspect-ratio:8/5;background:#081018;
+    border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.4);touch-action:none;}
+  #controls{margin:10px 0 4px;font-size:.85rem;opacity:.8;text-align:center;max-width:420px;padding:0 12px;}
+</style>
+</head>
+<body>
+<h1>🏓 Pong</h1>
+<div id="hud">
+  <span>You: <span id="scoreP">0</span></span>
+  <span>CPU: <span id="scoreC">0</span></span>
+  <button id="startStop">Start</button>
+</div>
+<canvas id="game" width="560" height="350"></canvas>
+<div id="controls">Move mouse / drag, or use ↑ ↓, to control your paddle (left side). First to 7 wins.</div>
+<script>
+(function(){
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const pw=10, ph=70;
+  let player = {x:14, y:H/2-ph/2, speed:6};
+  let cpu = {x:W-24, y:H/2-ph/2, speed:4.4};
+  let ball, scoreP=0, scoreC=0, running=false, dead=false, keys={};
+
+  function resetBall(dir){
+    ball = {x:W/2, y:H/2, r:7, vx:4.2*dir, vy:(Math.random()*4-2)};
+  }
+  function reset(){
+    scoreP=0; scoreC=0; dead=false;
+    player.y = H/2-ph/2; cpu.y = H/2-ph/2;
+    resetBall(Math.random()<0.5?-1:1);
+    document.getElementById('scoreP').textContent=scoreP;
+    document.getElementById('scoreC').textContent=scoreC;
+  }
+
+  function update(){
+    if(keys['ArrowUp']) player.y -= player.speed;
+    if(keys['ArrowDown']) player.y += player.speed;
+    player.y = Math.max(0, Math.min(H-ph, player.y));
+
+    const cpuCenter = cpu.y+ph/2;
+    if(cpuCenter < ball.y-10) cpu.y += cpu.speed;
+    else if(cpuCenter > ball.y+10) cpu.y -= cpu.speed;
+    cpu.y = Math.max(0, Math.min(H-ph, cpu.y));
+
+    ball.x += ball.vx; ball.y += ball.vy;
+    if(ball.y-ball.r<0){ ball.y=ball.r; ball.vy*=-1; }
+    if(ball.y+ball.r>H){ ball.y=H-ball.r; ball.vy*=-1; }
+
+    if(ball.x-ball.r < player.x+pw && ball.x-ball.r > player.x-pw && ball.y > player.y && ball.y < player.y+ph && ball.vx<0){
+      ball.vx *= -1.06;
+      ball.vy += (ball.y-(player.y+ph/2))*0.12;
+    }
+    if(ball.x+ball.r > cpu.x && ball.x+ball.r < cpu.x+pw && ball.y > cpu.y && ball.y < cpu.y+ph && ball.vx>0){
+      ball.vx *= -1.06;
+      ball.vy += (ball.y-(cpu.y+ph/2))*0.12;
+    }
+
+    if(ball.x < 0){
+      scoreC++; document.getElementById('scoreC').textContent=scoreC;
+      if(scoreC>=7){ dead=true; running=false; document.getElementById('startStop').textContent='Start'; }
+      else resetBall(1);
+    }
+    if(ball.x > W){
+      scoreP++; document.getElementById('scoreP').textContent=scoreP;
+      if(scoreP>=7){ dead=true; running=false; document.getElementById('startStop').textContent='Start'; }
+      else resetBall(-1);
+    }
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle='rgba(255,255,255,.2)'; ctx.setLineDash([6,10]);
+    ctx.beginPath(); ctx.moveTo(W/2,0); ctx.lineTo(W/2,H); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#5bd1ff'; ctx.fillRect(player.x-pw/2,player.y,pw,ph);
+    ctx.fillStyle='#ff8a5b'; ctx.fillRect(cpu.x-pw/2,cpu.y,pw,ph);
+    ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2); ctx.fill();
+
+    if(dead){
+      ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(0,0,W,H);
+      ctx.fillStyle='#fff'; ctx.font='bold 24px sans-serif'; ctx.textAlign='center';
+      const msg = scoreP>=7 ? 'You win! Start to play again' : 'CPU wins — Start to retry';
+      ctx.fillText(msg, W/2, H/2);
+    } else if(!running){
+      ctx.fillStyle='rgba(0,0,0,.3)'; ctx.fillRect(0,0,W,H);
+      ctx.fillStyle='#fff'; ctx.font='bold 24px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('Paused — press Start', W/2, H/2);
+    }
+  }
+
+  function loop(){ if(running) update(); draw(); requestAnimationFrame(loop); }
+
+  window.addEventListener('keydown', e=>keys[e.key]=true);
+  window.addEventListener('keyup', e=>keys[e.key]=false);
+  function pointerY(clientY){
+    const rect = canvas.getBoundingClientRect();
+    return (clientY-rect.top) * (H/rect.height);
+  }
+  canvas.addEventListener('mousemove', e=>{ player.y = pointerY(e.clientY)-ph/2; });
+  canvas.addEventListener('touchmove', e=>{ e.preventDefault(); player.y = pointerY(e.touches[0].clientY)-ph/2; }, {passive:false});
+
+  const btn = document.getElementById('startStop');
+  btn.addEventListener('click', ()=>{
+    if(dead) reset();
+    running = !running;
+    btn.textContent = running ? 'Stop' : 'Start';
+  });
+
+  reset();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
