@@ -6,18 +6,12 @@
 <title>Breakout</title>
 <style>
   :root{--bg1:#1a1030;--bg2:#0b0718;--ink:#f2eaff;--accent:#c98bff;--panel:#221238ee;}
-  *{box-sizing:border-box;}
-  html,body{height:100%;margin:0;}
-  body{background:linear-gradient(var(--bg1),var(--bg2));color:var(--ink);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-    display:flex;flex-direction:column;align-items:center;
-    padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);min-height:100%;}
+  *{box-sizing:border-box;} html,body{height:100%;margin:0;}
+  body{background:linear-gradient(var(--bg1),var(--bg2));color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column;align-items:center;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);min-height:100%;}
   h1{margin:14px 0 6px;font-size:1.4rem;}
-  #hud{display:flex;gap:16px;align-items:center;margin-bottom:8px;background:var(--panel);
-    padding:8px 16px;border-radius:12px;font-weight:600;}
+  #hud{display:flex;gap:16px;align-items:center;margin-bottom:8px;background:var(--panel);padding:8px 16px;border-radius:12px;font-weight:600;}
   #hud button{padding:6px 14px;border:none;border-radius:8px;background:var(--accent);color:#1a0f2e;font-weight:700;cursor:pointer;}
-  canvas{width:100%;max-width:520px;height:auto;aspect-ratio:4/3;background:#150c26;
-    border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.4);touch-action:none;}
+  canvas{width:100%;max-width:520px;height:auto;aspect-ratio:4/3;background:#150c26;border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.4);touch-action:none;}
   #controls{margin:10px 0 4px;font-size:.85rem;opacity:.8;text-align:center;max-width:420px;padding:0 12px;}
 </style>
 </head>
@@ -29,7 +23,7 @@
   <button id="startStop">Start</button>
 </div>
 <canvas id="game" width="520" height="390"></canvas>
-<div id="controls">Move mouse / drag finger to slide the paddle, or use ← →. Break all the bricks!</div>
+<div id="controls">A / D (or drag) to slide the paddle. Break all the bricks!</div>
 <script>
 (function(){
   const canvas = document.getElementById('game');
@@ -39,9 +33,7 @@
   let ball, bricks, score, lives, running=false, dead=false, keys={};
   const rows=5, cols=9, bw=48, bh=16, bgap=6, boffx=(W-(cols*(bw+bgap)-bgap))/2, boffy=50;
 
-  function resetBall(){
-    ball = {x:W/2, y:H-50, r:7, vx:3.2*(Math.random()<0.5?-1:1), vy:-3.6};
-  }
+  function resetBall(){ ball = {x:W/2, y:H-50, r:7, vx:3.2*(Math.random()<0.5?-1:1), vy:-3.6}; }
   function resetBricks(){
     bricks = [];
     const colors = ['#ff6b81','#ffa45b','#ffe066','#7be495','#7ec8ff'];
@@ -50,34 +42,26 @@
     }
   }
   function reset(){
-    resetBall(); resetBricks(); score=0; lives=3; dead=false;
-    paddle.x = W/2-paddle.w/2;
+    resetBall(); resetBricks(); score=0; lives=3; dead=false; paddle.x = W/2-paddle.w/2;
     document.getElementById('score').textContent=score;
     document.getElementById('lives').textContent=lives;
   }
-
   function update(){
-    if(keys['ArrowLeft']) paddle.x -= paddle.speed;
-    if(keys['ArrowRight']) paddle.x += paddle.speed;
+    if(keys['a']) paddle.x -= paddle.speed;
+    if(keys['d']) paddle.x += paddle.speed;
     paddle.x = Math.max(0, Math.min(W-paddle.w, paddle.x));
-
     ball.x += ball.vx; ball.y += ball.vy;
     if(ball.x-ball.r<0 || ball.x+ball.r>W) ball.vx *= -1;
     if(ball.y-ball.r<0) ball.vy *= -1;
-
-    if(ball.y+ball.r >= paddle.y && ball.y+ball.r <= paddle.y+paddle.h &&
-       ball.x >= paddle.x && ball.x <= paddle.x+paddle.w && ball.vy>0){
+    if(ball.y+ball.r >= paddle.y && ball.y+ball.r <= paddle.y+paddle.h && ball.x >= paddle.x && ball.x <= paddle.x+paddle.w && ball.vy>0){
       const hit = (ball.x-(paddle.x+paddle.w/2))/(paddle.w/2);
-      ball.vx = hit*4.5;
-      ball.vy = -Math.abs(ball.vy);
+      ball.vx = hit*4.5; ball.vy = -Math.abs(ball.vy);
     }
-
     if(ball.y-ball.r > H){
       lives--; document.getElementById('lives').textContent=lives;
       if(lives<=0){ dead=true; running=false; document.getElementById('startStop').textContent='Start'; }
       else resetBall();
     }
-
     for(const b of bricks){
       if(!b.alive) continue;
       if(ball.x+ball.r>b.x && ball.x-ball.r<b.x+b.w && ball.y+ball.r>b.y && ball.y-ball.r<b.y+b.h){
@@ -90,49 +74,30 @@
     }
     if(bricks.every(b=>!b.alive)){ dead=true; running=false; document.getElementById('startStop').textContent='Start'; }
   }
-
   function draw(){
     ctx.clearRect(0,0,W,H);
-    for(const b of bricks){
-      if(!b.alive) continue;
-      ctx.fillStyle=b.color; ctx.fillRect(b.x,b.y,b.w,b.h);
-    }
+    for(const b of bricks){ if(!b.alive) continue; ctx.fillStyle=b.color; ctx.fillRect(b.x,b.y,b.w,b.h); }
     ctx.fillStyle='#c98bff'; ctx.fillRect(paddle.x,paddle.y,paddle.w,paddle.h);
     ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2); ctx.fill();
-
     if(dead){
       ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(0,0,W,H);
       ctx.fillStyle='#fff'; ctx.font='bold 24px sans-serif'; ctx.textAlign='center';
-      const msg = lives<=0 ? 'Game Over — Start to retry' : 'You cleared the bricks!';
-      ctx.fillText(msg, W/2, H/2);
+      ctx.fillText(lives<=0?'Game Over — Start to retry':'You cleared the bricks!', W/2, H/2);
     } else if(!running){
       ctx.fillStyle='rgba(0,0,0,.3)'; ctx.fillRect(0,0,W,H);
       ctx.fillStyle='#fff'; ctx.font='bold 24px sans-serif'; ctx.textAlign='center';
       ctx.fillText('Paused — press Start', W/2, H/2);
     }
   }
-
   function loop(){ if(running) update(); draw(); requestAnimationFrame(loop); }
-
-  const blockScrollKeys = ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '];
-  window.addEventListener('keydown', e=>{ keys[e.key]=true; if(blockScrollKeys.includes(e.key)) e.preventDefault(); });
-  window.addEventListener('keyup', e=>keys[e.key]=false);
-  function pointerX(clientX){
-    const rect = canvas.getBoundingClientRect();
-    return (clientX-rect.left) * (W/rect.width);
-  }
+  window.addEventListener('keydown', e=>keys[e.key.toLowerCase()]=true);
+  window.addEventListener('keyup', e=>keys[e.key.toLowerCase()]=false);
+  function pointerX(clientX){ const rect=canvas.getBoundingClientRect(); return (clientX-rect.left)*(W/rect.width); }
   canvas.addEventListener('mousemove', e=>{ paddle.x = pointerX(e.clientX)-paddle.w/2; });
   canvas.addEventListener('touchmove', e=>{ e.preventDefault(); paddle.x = pointerX(e.touches[0].clientX)-paddle.w/2; }, {passive:false});
-
   const btn = document.getElementById('startStop');
-  btn.addEventListener('click', ()=>{
-    if(dead) reset();
-    running = !running;
-    btn.textContent = running ? 'Stop' : 'Start';
-  });
-
-  reset();
-  requestAnimationFrame(loop);
+  btn.addEventListener('click', ()=>{ if(dead) reset(); running=!running; btn.textContent = running?'Stop':'Start'; });
+  reset(); requestAnimationFrame(loop);
 })();
 </script>
 </body>
