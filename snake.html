@@ -103,7 +103,9 @@
     requestAnimationFrame(loop);
   }
   function setDir(x,y){ if(dir.x===-x && dir.y===-y) return; nextDir = {x,y}; }
+  const blockScrollKeys = ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '];
   window.addEventListener('keydown', e=>{
+    if(blockScrollKeys.includes(e.key)) e.preventDefault();
     const k = e.key;
     if(k==='ArrowUp'||k==='w') setDir(0,-1);
     else if(k==='ArrowDown'||k==='s') setDir(0,1);
